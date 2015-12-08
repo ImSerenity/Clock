@@ -1,11 +1,13 @@
 package clock;
 
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import javax.swing.*;
 import java.util.Observer;
 import java.util.Observable;
 
-public class View implements Observer {
+public class View implements Observer, ActionListener {
     
     ClockPanel panel;
     
@@ -31,11 +33,19 @@ public class View implements Observer {
         JButton button = new JButton("Button 1 (PAGE_START)");
         //pane.add(button, BorderLayout.PAGE_START);
         
-        JMenu menu = new JMenu("THIS IS A MENU");
-        JMenuItem menuItem = new JMenuItem("Menu Item");
-        menuItem = new JMenuItem("ANOTHER ITEM");
-        pane.add(menu, BorderLayout.PAGE_START);
+        JMenuBar menuBar;
+        JMenu menu;
+        JMenuItem menuItem;
+        menuBar = new JMenuBar();
+        
+        menu = new JMenu("A Menu");
+        menuBar.add(menu);
+        
+        menuItem = new JMenuItem("Set an alarm...");
+        menuItem.addActionListener(this);
         menu.add(menuItem);
+        
+        pane.add(menuBar, BorderLayout.PAGE_START);
          
         panel.setPreferredSize(new Dimension(200, 200));
         pane.add(panel, BorderLayout.CENTER);
@@ -43,9 +53,14 @@ public class View implements Observer {
         button = new JButton("Button 3 (LINE_START)");
         pane.add(button, BorderLayout.LINE_START);
          
-        button = new JButton("Long-Named Button 4 (PAGE_END)");
+        button = new JButton("About");
         pane.add(button, BorderLayout.PAGE_END);
-         
+ 
+      
+                
+        //JLabel label = new JLabel("This is a label");
+        //pane.add(label, BorderLayout.PAGE_END);
+        
         button = new JButton("5 (LINE_END)");
         pane.add(button, BorderLayout.LINE_END);
         
@@ -57,5 +72,11 @@ public class View implements Observer {
     
     public void update(Observable o, Object arg) {
         panel.repaint();
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    JOptionPane.showInputDialog(panel, "Message Test");
     }
 }
