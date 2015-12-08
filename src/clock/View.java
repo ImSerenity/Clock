@@ -29,7 +29,13 @@ public class View implements Observer {
         Container pane = frame.getContentPane();
         
         JButton button = new JButton("Button 1 (PAGE_START)");
-        pane.add(button, BorderLayout.PAGE_START);
+        //pane.add(button, BorderLayout.PAGE_START);
+        
+        JMenu menu = new JMenu("THIS IS A MENU");
+        JMenuItem menuItem = new JMenuItem("Menu Item");
+        menuItem = new JMenuItem("ANOTHER ITEM");
+        pane.add(menu, BorderLayout.PAGE_START);
+        menu.add(menuItem);
          
         panel.setPreferredSize(new Dimension(200, 200));
         pane.add(panel, BorderLayout.CENTER);
