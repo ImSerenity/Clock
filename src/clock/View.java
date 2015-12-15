@@ -6,10 +6,17 @@ import java.awt.event.ActionListener;
 import javax.swing.*;
 import java.util.Observer;
 import java.util.Observable;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import queuemanager.QueueOverflowException;
+import queuemanager.QueueUnderflowException;
+import queuemanager.SortedArrayPriorityQueue;
 
 public class View implements Observer, ActionListener {
     
     ClockPanel panel;
+    Alarm alarm;
+    queuemanager.SortedArrayPriorityQueue pq = new SortedArrayPriorityQueue<>(100);
     
     public View(Model model) {
         JFrame frame = new JFrame();
@@ -72,17 +79,33 @@ public class View implements Observer, ActionListener {
                 String secondsOut = seconds.getText();
                 int secondsOutInt = Integer.parseInt(secondsOut);
                 String nameOut = name.getText();
-                Alarm alarm = new Alarm(nameOut, hoursOutInt, minutesOutInt, secondsOutInt);
-                alarm.setHours(hoursOutInt);
-                alarm.setMinutes(minutesOutInt);
-                alarm.setSeconds(secondsOutInt);
-                alarm.setName(nameOut);
+                
+               
+                int time = (hoursOutInt * 60 * 60) + (minutesOutInt * 60) + secondsOutInt;
+                //alarm.setHours(hoursOutInt);
+                //alarm.setMinutes(minutesOutInt);
+                //alarm.setSeconds(secondsOutInt);
+                alarm = new Alarm();
+                try {
+                    pq.add(nameOut, time);
+                    System.out.println("Adding alarm with Name: " + alarm.getName() + " and Time: " + alarm.getTime());
+                } catch (QueueOverflowException ex) {
+                    Logger.getLogger(View.class.getName()).log(Level.SEVERE, null, ex);
+                }
                
                 if(result == JOptionPane.OK_OPTION) {
                     System.out.println("Hours: " + hours.getText());
                     System.out.println("Minutes: " + minutes.getText());
-                    System.out.println("Seconds: " + seconds.getText());
+                    System.out.println("Seconds: " + seconds.getText());  
                 }
+                
+                try {
+                    System.out.println(pq.head());
+                } catch (QueueUnderflowException ex) {
+                    Logger.getLogger(View.class.getName()).log(Level.SEVERE, null, ex);
+                }
+                
+                System.out.println(pq.toString());
             }
         });
         menu.add(menuItem);
@@ -91,7 +114,34 @@ public class View implements Observer, ActionListener {
         menuItem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                System.out.println("IT WORKS");
+                //System.out.println("IT WORKS");
+                String nameOut = alarm.getName();
+                int timeInSeconds = alarm.getTime();
+                int hoursInt = timeInSeconds / 3600;
+                String hoursString = "" + hoursInt;
+
+                JTextField name = new JTextField(nameOut);
+                JTextField hours = new JTextField(hoursString);
+                JTextField minutes = new JTextField(5);
+                JTextField seconds = new JTextField(5);
+
+                alarm = new Alarm();
+                
+
+                JPanel inputPanel = new JPanel();
+
+                inputPanel.add(new JLabel("Edit Name: "));
+                inputPanel.add(name);
+                inputPanel.add(Box.createHorizontalStrut(15));
+                inputPanel.add(new JLabel("Edit Hours: "));
+                inputPanel.add(hours);
+                inputPanel.add(Box.createHorizontalStrut(15));
+                inputPanel.add(new JLabel("Edit Minutes: "));
+                inputPanel.add(minutes);
+                inputPanel.add(Box.createHorizontalStrut(15));
+                inputPanel.add(new JLabel("Edit Seconds: "));
+                inputPanel.add(seconds);
+                int result =  JOptionPane.showConfirmDialog(null, inputPanel, "Please fill in the details of the alarm below", JOptionPane.OK_CANCEL_OPTION);
             }
         });
         menu.add(menuItem);
