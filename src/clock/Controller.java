@@ -20,14 +20,7 @@ public class Controller {
         
         listener = new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                model.update();
-                Calendar date2 = Calendar.getInstance();
-                Alarm alarm = new Alarm("", 0, 0, 0);
-        if(date2.get(Calendar.HOUR) == alarm.getHours() && date2.get(Calendar.MINUTE) == alarm.getMinutes())
-        {
-            JPanel inputPanel = new JPanel();
-            JOptionPane.showConfirmDialog(null, inputPanel, "ALARM: " + alarm.getName(), JOptionPane.OK_CANCEL_OPTION);
-        }
+                model.update();  
             }
         };
         

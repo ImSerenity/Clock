@@ -3,6 +3,9 @@ package clock;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.Calendar;
 import javax.swing.*;
 import java.util.Observer;
@@ -75,26 +78,27 @@ public class View implements Observer, ActionListener {
                 String minutesOut = minutes.getText();
                 int minutesOutInt = Integer.parseInt(minutesOut);
                 String nameOut = name.getText();
-                
-               
-                //int priority = (hoursOutInt * 60 * 60) + (minutesOutInt * 60);
-                long priority = 2147483647 - System.currentTimeMillis() / 1000L;
-
+                Calendar cal = Calendar.getInstance();
+                int timeInSeconds = (hoursOutInt * 60 * 60) + (minutesOutInt * 60);
+                int currentTime = cal.get(Calendar.SECOND);
+                int priority = currentTime - timeInSeconds; 
                 //alarm.setHours(hoursOutInt);
                 //alarm.setMinutes(minutesOutInt);
                 //alarm.setSeconds(secondsOutInt);
                 alarm = new Alarm(nameOut, hoursOutInt, minutesOutInt, priority);
                 try {
                     pq.add(nameOut, priority);
-                    System.out.println("Adding alarm with Name: " + alarm.getName() + " and Time: " + alarm.getPriority());
+                    System.out.println("Adding alarm with Name: " + alarm.getName() + " and Time: " + alarm.getHours() + ":" + alarm.getMinutes());
+                    System.out.println("Next alarm is: " + pq.head());
                 } catch (QueueOverflowException ex) {
+                    Logger.getLogger(View.class.getName()).log(Level.SEVERE, null, ex);
+                } catch (QueueUnderflowException ex) {
                     Logger.getLogger(View.class.getName()).log(Level.SEVERE, null, ex);
                 }
                
                 if(result == JOptionPane.OK_OPTION) {
                     System.out.println("Hours: " + hours.getText());
-                    System.out.println("Minutes: " + minutes.getText());
-                    System.out.println("Seconds: " + seconds.getText());  
+                    System.out.println("Minutes: " + minutes.getText()); 
                 }
                 
                 try {
@@ -154,7 +158,6 @@ public class View implements Observer, ActionListener {
                     inputPanel.add(new JLabel("Edit Minutes: "));
                     inputPanel.add(minutes);
 
-
                     String nameIn = name.getText();
                     String hoursIn = hours.getText();
                     String minutesIn = hours.getText();
@@ -176,18 +179,21 @@ public class View implements Observer, ActionListener {
         pane.add(panel, BorderLayout.CENTER);
          
         button = new JButton("Button 3 (LINE_START)");
-        //pane.add(button, BorderLayout.LINE_START);
-        
-            //button = new JButton("About");
-            //pane.add(button, BorderLayout.PAGE_END); 
-        //JLabel label = new JLabel("Next alarm: " + alarm.getName() + " is at: " + alarm.hours + ":" + alarm.minutes);
-        //ppane.add(label, BorderLayout.PAGE_END);
-        pane.revalidate();
-        pane.repaint();
+        try {
+            pq.add("Test", 0);
+            pq.head(); 
+        } catch (QueueUnderflowException | QueueOverflowException ex) {
+            Logger.getLogger(View.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        JLabel label = new JLabel("Next alarm is: NOT WORKING UGH");     
+
+        pane.add(label, BorderLayout.PAGE_END);
+        panel.repaint();     
         
         button = new JButton("5 (LINE_END)");
         //pane.add(button, BorderLayout.LINE_END); 
-        // End of borderlayout code
+        //End of borderlayout code
         
         frame.pack();
         frame.setVisible(true);
@@ -200,6 +206,33 @@ public class View implements Observer, ActionListener {
     
     @Override
     public void actionPerformed(ActionEvent e) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+       Calendar date2 = Calendar.getInstance();
+                if(date2.get(Calendar.HOUR) == alarm.getHours() && date2.get(Calendar.MINUTE) == alarm.getMinutes())
+                {
+                    JPanel inputPanel = new JPanel();
+                    JOptionPane.showConfirmDialog(null, inputPanel, "ALARM: " + alarm.getName(), JOptionPane.OK_CANCEL_OPTION);
+                    System.out.println("Time reached");
+                    try {
+                        pq.remove();
+                    } catch (QueueUnderflowException ex) {
+                        Logger.getLogger(View.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
+    }
+    
+    public void saveToFile() {
+        BufferedWriter writer;
+        
+        String hours = "" + alarm.hours;
+        
+        try {
+            String str = "BEGIN:VALARM\nDTSTART:"+hours+"\nDTEND:23:05\nACTION:DISPLAY\nDESCRIPTION:\nEND:VALARM";
+            FileWriter fw = new FileWriter("text.txt");
+            fw.write(str);
+            fw.close();
+        } catch (IOException ex) {
+            Logger.getLogger(View.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
     }
 }

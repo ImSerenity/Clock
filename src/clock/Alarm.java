@@ -6,7 +6,6 @@ import queuemanager.SortedArrayPriorityQueue;
 public class Alarm {
 
     String name;
-    int time;
     int hours;
     int minutes;
     int priority;
@@ -24,7 +23,7 @@ public class Alarm {
     }
     
     public int getPriority() {
-        return time;
+        return priority;
     }
 
     public int getHours() {
@@ -39,8 +38,8 @@ public class Alarm {
         this.name = name;
     }
 
-    public void setTime(int time) {
-        this.time = time;
+    public void setPriority(int priority) {
+        this.priority = priority;
     }
 
     public void setHours(int hours) {
@@ -50,10 +49,6 @@ public class Alarm {
     public void setMinutes(int minutes) {
         this.minutes = minutes;
     }
-
-    public void setPriority(int priority) {
-        this.priority = priority;
-    } 
     
     public boolean searchName(String target) {
         if(target.equals(getName())) 
