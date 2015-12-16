@@ -3,6 +3,7 @@ package clock;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Calendar;
 import javax.swing.*;
 import java.util.Observer;
 import java.util.Observable;
@@ -66,9 +67,6 @@ public class View implements Observer, ActionListener {
                 inputPanel.add(Box.createHorizontalStrut(15));
                 inputPanel.add(new JLabel("Minutes: "));
                 inputPanel.add(minutes);
-                inputPanel.add(Box.createHorizontalStrut(15));
-                inputPanel.add(new JLabel("Seconds: "));
-                inputPanel.add(seconds);
 
                 int result =  JOptionPane.showConfirmDialog(null, inputPanel, "Please fill in the details of the alarm below", JOptionPane.OK_CANCEL_OPTION);
                 
@@ -76,19 +74,19 @@ public class View implements Observer, ActionListener {
                 int hoursOutInt = Integer.parseInt(hoursOut);
                 String minutesOut = minutes.getText();
                 int minutesOutInt = Integer.parseInt(minutesOut);
-                String secondsOut = seconds.getText();
-                int secondsOutInt = Integer.parseInt(secondsOut);
                 String nameOut = name.getText();
                 
                
-                int time = (hoursOutInt * 60 * 60) + (minutesOutInt * 60) + secondsOutInt;
+                //int priority = (hoursOutInt * 60 * 60) + (minutesOutInt * 60);
+                long priority = 2147483647 - System.currentTimeMillis() / 1000L;
+
                 //alarm.setHours(hoursOutInt);
                 //alarm.setMinutes(minutesOutInt);
                 //alarm.setSeconds(secondsOutInt);
-                alarm = new Alarm();
+                alarm = new Alarm(nameOut, hoursOutInt, minutesOutInt, priority);
                 try {
-                    pq.add(nameOut, time);
-                    System.out.println("Adding alarm with Name: " + alarm.getName() + " and Time: " + alarm.getTime());
+                    pq.add(nameOut, priority);
+                    System.out.println("Adding alarm with Name: " + alarm.getName() + " and Time: " + alarm.getPriority());
                 } catch (QueueOverflowException ex) {
                     Logger.getLogger(View.class.getName()).log(Level.SEVERE, null, ex);
                 }
@@ -115,33 +113,59 @@ public class View implements Observer, ActionListener {
             @Override
             public void actionPerformed(ActionEvent e) {
                 //System.out.println("IT WORKS");
-                String nameOut = alarm.getName();
-                int timeInSeconds = alarm.getTime();
-                int hoursInt = timeInSeconds / 3600;
-                String hoursString = "" + hoursInt;
 
+                String nameOut = alarm.getName();
+                int hoursOut = alarm.getHours();
+                int minutesOut = alarm.getMinutes();
+                
+                String hoursString = "" + hoursOut;
+                String minutesString = "" + minutesOut;
+
+                
                 JTextField name = new JTextField(nameOut);
                 JTextField hours = new JTextField(hoursString);
-                JTextField minutes = new JTextField(5);
-                JTextField seconds = new JTextField(5);
+                JTextField minutes = new JTextField(minutesString);
 
-                alarm = new Alarm();
+                //alarm = new Alarm(nameOut, hoursOut, minutesOut, hoursInt);
                 
-
                 JPanel inputPanel = new JPanel();
+                JPanel inputPanel2 = new JPanel();
+                DefaultComboBoxModel model = new DefaultComboBoxModel();
+                //for(int i = 0; i < 100; i++)
+                //{
+                    model.addElement(alarm.getName());
+                //}
+                JOptionPane option = new JOptionPane("Choose an alarm");
+                JComboBox combo = new JComboBox(model);
+                inputPanel2.add(combo);
+                inputPanel2.add(Box.createHorizontalStrut(15));
+                int result =  JOptionPane.showConfirmDialog(null, inputPanel2, "Please choose an alarm", JOptionPane.OK_CANCEL_OPTION);
 
-                inputPanel.add(new JLabel("Edit Name: "));
-                inputPanel.add(name);
-                inputPanel.add(Box.createHorizontalStrut(15));
-                inputPanel.add(new JLabel("Edit Hours: "));
-                inputPanel.add(hours);
-                inputPanel.add(Box.createHorizontalStrut(15));
-                inputPanel.add(new JLabel("Edit Minutes: "));
-                inputPanel.add(minutes);
-                inputPanel.add(Box.createHorizontalStrut(15));
-                inputPanel.add(new JLabel("Edit Seconds: "));
-                inputPanel.add(seconds);
-                int result =  JOptionPane.showConfirmDialog(null, inputPanel, "Please fill in the details of the alarm below", JOptionPane.OK_CANCEL_OPTION);
+                String target = "" + combo;
+                if(result == JOptionPane.OK_OPTION) {
+                    
+
+                    inputPanel.add(new JLabel("Edit Name: "));
+                    inputPanel.add(name);
+                    inputPanel.add(Box.createHorizontalStrut(15));
+                    inputPanel.add(new JLabel("Edit Hours: "));
+                    inputPanel.add(hours);
+                    inputPanel.add(Box.createHorizontalStrut(15));
+                    inputPanel.add(new JLabel("Edit Minutes: "));
+                    inputPanel.add(minutes);
+
+
+                    String nameIn = name.getText();
+                    String hoursIn = hours.getText();
+                    String minutesIn = hours.getText();
+                    int hoursInInt = Integer.parseInt(hoursIn);
+                    int minutesInInt = Integer.parseInt(minutesIn);
+                    alarm.setName(nameIn);
+                    alarm.setHours(hoursInInt);
+                    alarm.setMinutes(minutesInInt);
+        
+                    int result2 =  JOptionPane.showConfirmDialog(null, inputPanel, "Please fill in the details of the alarm below", JOptionPane.OK_CANCEL_OPTION);
+                }
             }
         });
         menu.add(menuItem);
@@ -153,28 +177,27 @@ public class View implements Observer, ActionListener {
          
         button = new JButton("Button 3 (LINE_START)");
         //pane.add(button, BorderLayout.LINE_START);
-         
-        //button = new JButton("About");
-        //pane.add(button, BorderLayout.PAGE_END);
- 
-      
-                
-        JLabel label = new JLabel("This is a label");
-        pane.add(label, BorderLayout.PAGE_END);
+        
+            //button = new JButton("About");
+            //pane.add(button, BorderLayout.PAGE_END); 
+        //JLabel label = new JLabel("Next alarm: " + alarm.getName() + " is at: " + alarm.hours + ":" + alarm.minutes);
+        //ppane.add(label, BorderLayout.PAGE_END);
+        pane.revalidate();
+        pane.repaint();
         
         button = new JButton("5 (LINE_END)");
-        //pane.add(button, BorderLayout.LINE_END);
-        
+        //pane.add(button, BorderLayout.LINE_END); 
         // End of borderlayout code
         
         frame.pack();
         frame.setVisible(true);
     }
     
+    @Override
     public void update(Observable o, Object arg) {
         panel.repaint();
     }
-
+    
     @Override
     public void actionPerformed(ActionEvent e) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
