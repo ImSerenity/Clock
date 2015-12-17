@@ -6,7 +6,6 @@ public class Clock {
         Model model = new Model();
         View view = new View(model);
         model.addObserver(view);
-        Controller controller = new Controller(model, view);
-        view.saveToFile();
+        Controller controller = new Controller(model, view);   
     }
 }

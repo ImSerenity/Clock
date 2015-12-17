@@ -1,12 +1,15 @@
 package clock;
 
+import com.sun.media.sound.JARSoundbankReader;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Calendar;
+import java.util.Date;
 import javax.swing.*;
 import java.util.Observer;
 import java.util.Observable;
@@ -19,8 +22,11 @@ import queuemanager.SortedArrayPriorityQueue;
 public class View implements Observer, ActionListener {
     
     ClockPanel panel;
-    Alarm alarm;
+    Alarm alarm = new Alarm("", 0, 0, 0);
     queuemanager.SortedArrayPriorityQueue pq = new SortedArrayPriorityQueue<>(100);
+    JButton saveButton;
+    JFileChooser jfc;
+    JTextArea log;
     
     public View(Model model) {
         JFrame frame = new JFrame();
@@ -28,6 +34,7 @@ public class View implements Observer, ActionListener {
         //frame.setContentPane(panel);
         frame.setTitle("Java Clock");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        
         
         // Start of border layout code
         
@@ -173,6 +180,35 @@ public class View implements Observer, ActionListener {
         });
         menu.add(menuItem);
         
+        menuItem = new JMenuItem("Exit.");
+        menuItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JPanel inputPanel = new JPanel();
+                log = new JTextArea(5, 20);
+                log.setMargin(new Insets(5,5,5,5));
+                log.setEditable(false);
+                jfc = new JFileChooser();
+                saveButton = new JButton("Save a File...");
+                saveButton.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        int returnVal = jfc.showSaveDialog(panel);
+                        if(returnVal == JFileChooser.APPROVE_OPTION) {
+                            File file = jfc.getSelectedFile();
+                            saveToFile(file);
+                            log.append("Saving: " + file.getName());
+                        }
+                    }
+                });
+                
+                inputPanel.add(saveButton);
+                inputPanel.add(log);
+                panel.add(inputPanel);
+                int result3 =  JOptionPane.showConfirmDialog(null, inputPanel, "Choose an option", JOptionPane.OK_CANCEL_OPTION);
+            }
+        });
+        menu.add(menuItem);
         pane.add(menuBar, BorderLayout.PAGE_START);
          
         panel.setPreferredSize(new Dimension(200, 200));
@@ -180,13 +216,15 @@ public class View implements Observer, ActionListener {
          
         button = new JButton("Button 3 (LINE_START)");
         try {
-            pq.add("Test", 0);
+            //pq.add("Test", 0);
             pq.head(); 
-        } catch (QueueUnderflowException | QueueOverflowException ex) {
+            System.out.println(alarm.getName());
+        } catch (QueueUnderflowException ex) {
             Logger.getLogger(View.class.getName()).log(Level.SEVERE, null, ex);
         }
-
-        JLabel label = new JLabel("Next alarm is: NOT WORKING UGH");     
+        String name = alarm.getName();
+        
+        JLabel label = new JLabel("Next alarm is: " + name + " with time: " + alarm.getHours() + ":" + alarm.getMinutes());     
 
         pane.add(label, BorderLayout.PAGE_END);
         panel.repaint();     
@@ -201,33 +239,37 @@ public class View implements Observer, ActionListener {
     
     @Override
     public void update(Observable o, Object arg) {
-        panel.repaint();
+        panel.repaint();       
     }
     
     @Override
     public void actionPerformed(ActionEvent e) {
-       Calendar date2 = Calendar.getInstance();
-                if(date2.get(Calendar.HOUR) == alarm.getHours() && date2.get(Calendar.MINUTE) == alarm.getMinutes())
-                {
-                    JPanel inputPanel = new JPanel();
-                    JOptionPane.showConfirmDialog(null, inputPanel, "ALARM: " + alarm.getName(), JOptionPane.OK_CANCEL_OPTION);
-                    System.out.println("Time reached");
-                    try {
-                        pq.remove();
-                    } catch (QueueUnderflowException ex) {
-                        Logger.getLogger(View.class.getName()).log(Level.SEVERE, null, ex);
-                    }
-                }
     }
     
-    public void saveToFile() {
-        BufferedWriter writer;
-        
-        String hours = "" + alarm.hours;
+    public void alarm() {
+        Calendar date2 = Calendar.getInstance();
+        int DTSTART = alarm.getHours();
+        if(DTSTART == date2.get(Calendar.HOUR_OF_DAY) && date2.get(Calendar.MINUTE) == alarm.getMinutes())
+        {
+            JPanel inputPanel = new JPanel();
+            JOptionPane.showConfirmDialog(null, inputPanel, "ALARM: " + alarm.getName(), JOptionPane.OK_CANCEL_OPTION);
+            System.out.println("Time reached");
+            try {
+                pq.remove();
+            } catch (QueueUnderflowException ex) {
+                Logger.getLogger(View.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+    }
+    
+    public void saveToFile(File fileName) {
+        int hoursInt = alarm.getHours();
+        String hours = "" + hoursInt;
+        String minutes = "" + alarm.getMinutes();
         
         try {
-            String str = "BEGIN:VALARM\nDTSTART:"+hours+"\nDTEND:23:05\nACTION:DISPLAY\nDESCRIPTION:\nEND:VALARM";
-            FileWriter fw = new FileWriter("text.txt");
+            String str = "BEGIN:VEVENT\nDTSTART:"+hours+":"+minutes+"\nDTEND:"+hours+":"+ minutes+"\nACTION:DISPLAY\nDESCRIPTION:\nEND:VEVENT";
+            FileWriter fw = new FileWriter(fileName+".ics");
             fw.write(str);
             fw.close();
         } catch (IOException ex) {

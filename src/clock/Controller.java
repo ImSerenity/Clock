@@ -1,11 +1,7 @@
 package clock;
 
 import java.awt.event.*;
-import java.util.Calendar;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
 import javax.swing.Timer;
-
 public class Controller {
     
     ActionListener listener;
@@ -20,7 +16,8 @@ public class Controller {
         
         listener = new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                model.update();  
+                model.update();
+                view.alarm();
             }
         };
         
