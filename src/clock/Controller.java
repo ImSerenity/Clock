@@ -17,6 +17,9 @@ public class Controller {
         listener = new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 model.update();
+                /**
+                 * Calls the alarm function from the View class every update
+                 */
                 view.alarm();
             }
         };

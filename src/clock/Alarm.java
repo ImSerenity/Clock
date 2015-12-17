@@ -3,6 +3,10 @@ package clock;
 import queuemanager.PriorityQueue;
 import queuemanager.SortedArrayPriorityQueue;
 
+/**
+ * Basic class for storing alarm data
+ * @author2 Thomas Wood - 09004316
+ */
 public class Alarm {
 
     String name;
@@ -50,6 +54,12 @@ public class Alarm {
         this.minutes = minutes;
     }
     
+    /**
+     * Method for searching a name of a specific alarm based on user input for editing alarms.
+     * @deprecated is not used
+     * @param target name for search
+     * @return true/false if found/not found respectively
+     */
     public boolean searchName(String target) {
         if(target.equals(getName())) 
         {

@@ -1,5 +1,5 @@
 package clock;
-
+//Imports
 import com.sun.media.sound.JARSoundbankReader;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -19,15 +19,43 @@ import queuemanager.QueueOverflowException;
 import queuemanager.QueueUnderflowException;
 import queuemanager.SortedArrayPriorityQueue;
 
+/**
+ * Main class for everything the user will see and interact with
+ * @author Ian Barnes
+ * @author2 Thomas Wood - 09004316
+ */
 public class View implements Observer, ActionListener {
-    
+    /**
+     * Declare Clock Panel
+     */
     ClockPanel panel;
+    /**
+     * A new empty alarm object
+     */
     Alarm alarm = new Alarm("", 0, 0, 0);
+    /**
+     * A new Priority Queue object with 100 array spaces available
+     */
     queuemanager.SortedArrayPriorityQueue pq = new SortedArrayPriorityQueue<>(100);
+    /**
+     * A save button declaration for saving alarms
+     */
     JButton saveButton;
+    /**
+     * Declaration for a new file chooser for saving alarms
+     */
     JFileChooser jfc;
+    /**
+     * Declaration for a log area when saving alarms
+     */
     JTextArea log;
     
+    /**
+     * Main method for everything the user will see and interact with.
+     * Includes other views and interaction methods.
+     * Declares the title of the main view and various other features such as the border layout.
+     * @param model defines the model to be used for the panel
+     */
     public View(Model model) {
         JFrame frame = new JFrame();
         panel = new ClockPanel(model);
@@ -51,22 +79,36 @@ public class View implements Observer, ActionListener {
         JButton button = new JButton("Button 1 (PAGE_START)");
         //pane.add(button, BorderLayout.PAGE_START);
         
+        /**
+         * Declares the main MenuBar item
+         */
         JMenuBar menuBar;
+        /**
+         * Declares the main Menu= item
+         */
         JMenu menu;
+        /**
+         * Declares a MenuItem
+         */
         JMenuItem menuItem;
+
         menuBar = new JMenuBar();
         
-        menu = new JMenu("A Menu");
+        menu = new JMenu("Main Menu");
         menuBar.add(menu);
         
         menuItem = new JMenuItem("Set an alarm...");
         menuItem.addActionListener(new ActionListener() {
+            /**
+             * Method for creating what happens when the user selects the 'Set an alarm...' menu item.
+             * Allows the user to input a name, hour and minute for the alarm to be set as.
+             * @param e 
+             */
             @Override
             public void actionPerformed(ActionEvent e) {
                 JTextField name = new JTextField(5);
                 JTextField hours = new JTextField(5);
                 JTextField minutes = new JTextField(5);
-                JTextField seconds = new JTextField(5);
                 JPanel inputPanel = new JPanel();
 
                 inputPanel.add(new JLabel("Name: "));
@@ -87,11 +129,20 @@ public class View implements Observer, ActionListener {
                 String nameOut = name.getText();
                 Calendar cal = Calendar.getInstance();
                 int timeInSeconds = (hoursOutInt * 60 * 60) + (minutesOutInt * 60);
-                int currentTime = cal.get(Calendar.SECOND);
+                int currentTime = cal.get(Calendar.HOUR_OF_DAY) * 60;
+                
+                /**
+                 * Create the priority number for the PQ.
+                 */
                 int priority = currentTime - timeInSeconds; 
                 //alarm.setHours(hoursOutInt);
                 //alarm.setMinutes(minutesOutInt);
                 //alarm.setSeconds(secondsOutInt);
+                
+                /**
+                 * Creates a new alarm object with the data input by the user and the calculated priority.
+                 * Adds the data to the priority queue.
+                 */
                 alarm = new Alarm(nameOut, hoursOutInt, minutesOutInt, priority);
                 try {
                     pq.add(nameOut, priority);
@@ -104,8 +155,9 @@ public class View implements Observer, ActionListener {
                 }
                
                 if(result == JOptionPane.OK_OPTION) {
-                    System.out.println("Hours: " + hours.getText());
-                    System.out.println("Minutes: " + minutes.getText()); 
+                    //The print statements below were for debugging purposes
+                    //System.out.println("Hours: " + hours.getText());
+                    //System.out.println("Minutes: " + minutes.getText()); 
                 }
                 
                 try {
@@ -121,9 +173,15 @@ public class View implements Observer, ActionListener {
         
         menuItem = new JMenuItem("Edit an alarm...");
         menuItem.addActionListener(new ActionListener() {
+            /**
+             * Allows the user to edit an alarm that they have created.
+             * Autofills the fields for editing based on the alarm chosen.
+             * Users choose an alarm from a dropdown box and then edit the fields.
+             * **Does not work**
+             * @param e 
+             */
             @Override
             public void actionPerformed(ActionEvent e) {
-                //System.out.println("IT WORKS");
 
                 String nameOut = alarm.getName();
                 int hoursOut = alarm.getHours();
@@ -182,6 +240,11 @@ public class View implements Observer, ActionListener {
         
         menuItem = new JMenuItem("Exit.");
         menuItem.addActionListener(new ActionListener() {
+            /**
+             * Allows the user to safely exit the program without losing data.
+             * Prompts the user to save their alarms when clicked by choosing a directory and name for the file.
+             * @param e 
+             */
             @Override
             public void actionPerformed(ActionEvent e) {
                 JPanel inputPanel = new JPanel();
@@ -208,13 +271,22 @@ public class View implements Observer, ActionListener {
                 int result3 =  JOptionPane.showConfirmDialog(null, inputPanel, "Choose an option", JOptionPane.OK_CANCEL_OPTION);
             }
         });
+        /**
+         * Add the menu item to the menu
+         */
         menu.add(menuItem);
+        
+        /**
+         * Add the menubar to the program and sets the default dimensions of the main window
+         */
         pane.add(menuBar, BorderLayout.PAGE_START);
          
         panel.setPreferredSize(new Dimension(200, 200));
         pane.add(panel, BorderLayout.CENTER);
          
-        button = new JButton("Button 3 (LINE_START)");
+        /**
+         * Gets the head of the queue
+         */
         try {
             //pq.add("Test", 0);
             pq.head(); 
@@ -222,6 +294,11 @@ public class View implements Observer, ActionListener {
         } catch (QueueUnderflowException ex) {
             Logger.getLogger(View.class.getName()).log(Level.SEVERE, null, ex);
         }
+        
+        /**
+         * Creates a label at the bottom of the main window to display the next alarm
+         * **Alarm details not displaying correctly**
+         */
         String name = alarm.getName();
         
         JLabel label = new JLabel("Next alarm is: " + name + " with time: " + alarm.getHours() + ":" + alarm.getMinutes());     
@@ -229,23 +306,37 @@ public class View implements Observer, ActionListener {
         pane.add(label, BorderLayout.PAGE_END);
         panel.repaint();     
         
-        button = new JButton("5 (LINE_END)");
-        //pane.add(button, BorderLayout.LINE_END); 
         //End of borderlayout code
         
         frame.pack();
         frame.setVisible(true);
     }
     
+    /**
+     * Repaints the window to update the clock hand display
+     * @param o
+     * @param arg 
+     */
     @Override
     public void update(Observable o, Object arg) {
         panel.repaint();       
     }
     
+    /**
+     * Standard required constructor - not used as done inline
+     * @param e 
+     */
     @Override
     public void actionPerformed(ActionEvent e) {
     }
     
+    /**
+     * Method to calculate when an alarm time is reached and display a pop up accordingly.
+     * This method would normally pull DTSTART and DTEND from an iCal file and use them for the user inputted alarm data.
+     * but a load file method was not created.
+     * Pop up box stuck until the minute has passed -  re runs remove statement.
+     * **This is an error**
+     */
     public void alarm() {
         Calendar date2 = Calendar.getInstance();
         int DTSTART = alarm.getHours();
@@ -262,13 +353,17 @@ public class View implements Observer, ActionListener {
         }
     }
     
+    /**
+     * Method to save an ics file of alarms to a user designated directory.
+     * @param fileName for designating the name of the file to be saved
+     */
     public void saveToFile(File fileName) {
         int hoursInt = alarm.getHours();
         String hours = "" + hoursInt;
         String minutes = "" + alarm.getMinutes();
         
         try {
-            String str = "BEGIN:VEVENT\nDTSTART:"+hours+":"+minutes+"\nDTEND:"+hours+":"+ minutes+"\nACTION:DISPLAY\nDESCRIPTION:\nEND:VEVENT";
+            String str = "BEGIN:VEVENT\nDTSTART:"+hours+minutes+"\nDTEND:"+hours+minutes+"\nACTION:DISPLAY\nDESCRIPTION:\nEND:VEVENT";
             FileWriter fw = new FileWriter(fileName+".ics");
             fw.write(str);
             fw.close();
