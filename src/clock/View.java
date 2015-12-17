@@ -233,6 +233,14 @@ public class View implements Observer, ActionListener {
                     int result2 =  JOptionPane.showConfirmDialog(null, inputPanel, "Please fill in the details of the alarm below", JOptionPane.OK_CANCEL_OPTION);
                 
                     if(result2 == JOptionPane.OK_OPTION) {
+                        try {
+                            pq.remove();
+                            pq.add(nameIn, priority);
+                        } catch (QueueOverflowException ex) {
+                            Logger.getLogger(View.class.getName()).log(Level.SEVERE, null, ex);
+                        } catch (QueueUnderflowException ex) {
+                            Logger.getLogger(View.class.getName()).log(Level.SEVERE, null, ex);
+                        }
                         System.out.println("Edited alarm to Name: " + alarm.getName() + " and Time: " + alarm.getHours() + ":" + alarm.getMinutes());
                         System.out.println(pq.toString());
                     }
