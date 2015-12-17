@@ -158,13 +158,7 @@ public class View implements Observer, ActionListener {
                     //The print statements below were for debugging purposes
                     //System.out.println("Hours: " + hours.getText());
                     //System.out.println("Minutes: " + minutes.getText()); 
-                }
-                
-                try {
-                    System.out.println(pq.head());
-                } catch (QueueUnderflowException ex) {
-                    Logger.getLogger(View.class.getName()).log(Level.SEVERE, null, ex);
-                }
+                }           
                 
                 System.out.println(pq.toString());
             }
@@ -231,8 +225,55 @@ public class View implements Observer, ActionListener {
                     alarm.setName(nameIn);
                     alarm.setHours(hoursInInt);
                     alarm.setMinutes(minutesInInt);
-        
+                    Calendar cal = Calendar.getInstance();
+                    int timeInSeconds = (hoursInInt * 60 * 60) + (minutesInInt * 60);
+                    int currentTime = cal.get(Calendar.HOUR_OF_DAY) * 60;
+                    int priority = currentTime - timeInSeconds; 
+                    alarm = new Alarm(nameIn, hoursInInt, minutesInInt, priority);
                     int result2 =  JOptionPane.showConfirmDialog(null, inputPanel, "Please fill in the details of the alarm below", JOptionPane.OK_CANCEL_OPTION);
+                
+                    if(result2 == JOptionPane.OK_OPTION) {
+                        System.out.println("Edited alarm to Name: " + alarm.getName() + " and Time: " + alarm.getHours() + ":" + alarm.getMinutes());
+                        System.out.println(pq.toString());
+                    }
+                }
+            }
+        });
+        menu.add(menuItem);
+        
+        menuItem = new JMenuItem("Delete an alarm...");
+        menuItem.addActionListener(new ActionListener() {
+            /**
+             * Allows the user to delete an alarm that they have created.
+             * Users choose an alarm from a dropdown box and then click the button to delete it
+             * **Works to an extent**
+             * @param e 
+             */
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                String nameOut = alarm.getName();
+
+                JPanel inputPanel3 = new JPanel();
+                DefaultComboBoxModel model = new DefaultComboBoxModel();
+                //for(int i = 0; i < 100; i++)
+                //{
+                    model.addElement(alarm.getName());
+                //}
+                JOptionPane option = new JOptionPane("Choose an alarm");
+                JComboBox combo = new JComboBox(model);
+                inputPanel3.add(combo);
+                inputPanel3.add(Box.createHorizontalStrut(15));
+                int result =  JOptionPane.showConfirmDialog(null, inputPanel3, "Please choose an alarm to delete", JOptionPane.OK_CANCEL_OPTION);
+
+                if(result == JOptionPane.OK_OPTION) {
+                    try {
+                        pq.remove();
+                        System.out.println("Deleting alarm: " + alarm.getName());
+                        System.out.println(pq.toString());
+                    } catch (QueueUnderflowException ex) {
+                        Logger.getLogger(View.class.getName()).log(Level.SEVERE, null, ex);
+                    }
                 }
             }
         });
@@ -363,7 +404,7 @@ public class View implements Observer, ActionListener {
         String minutes = "" + alarm.getMinutes();
         
         try {
-            String str = "BEGIN:VEVENT\nDTSTART:"+hours+minutes+"\nDTEND:"+hours+minutes+"\nACTION:DISPLAY\nDESCRIPTION:\nEND:VEVENT";
+            String str = "BEGIN:VCALENDAR\r\nBEGIN:VEVENT\r\nDTSTART:"+hours+":"+minutes+"\r\nDTEND:"+hours+":"+minutes+"\r\nACTION:DISPLAY\r\nDESCRIPTION:\r\nEND:VEVENT\r\nEND:VCALENDAR";
             FileWriter fw = new FileWriter(fileName+".ics");
             fw.write(str);
             fw.close();
