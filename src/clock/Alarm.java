@@ -1,8 +1,5 @@
 package clock;
 
-import queuemanager.PriorityQueue;
-import queuemanager.SortedArrayPriorityQueue;
-
 /**
  * Basic class for storing alarm data
  * @author2 Thomas Wood - 09004316

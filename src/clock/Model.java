@@ -4,6 +4,10 @@ import java.util.Calendar;
 import java.util.Observable;
 //import java.util.GregorianCalendar;
 
+/**
+ * Gets the local times and updates them every second to be passed the the ClockPanel
+ * @author Ian Barnes
+ */
 public class Model extends Observable {
     
     int hour = 0;

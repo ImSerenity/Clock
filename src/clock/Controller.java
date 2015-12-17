@@ -2,6 +2,12 @@ package clock;
 
 import java.awt.event.*;
 import javax.swing.Timer;
+
+/**
+ * Main Controller class to check for updates and run actions defined in View and Model
+ * @author Ian Barnes
+ * @author2 Thomas Wood - 09004316
+ */
 public class Controller {
     
     ActionListener listener;
@@ -10,6 +16,11 @@ public class Controller {
     Model model;
     View view;
     
+    /**
+     * The controller runs defined actions for the View and Model
+     * @param m
+     * @param v 
+     */
     public Controller(Model m, View v) {
         model = m;
         view = v;
@@ -17,6 +28,7 @@ public class Controller {
         listener = new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 model.update();
+                
                 /**
                  * Calls the alarm function from the View class every update
                  */

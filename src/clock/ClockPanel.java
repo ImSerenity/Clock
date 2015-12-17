@@ -6,16 +6,28 @@ import java.awt.geom.*;
 import java.awt.font.*;
 import javax.swing.*;
 
+/**
+ * Generates and draws a clock based on the local time zone
+ * @author Ian Barnes
+ */
 public class ClockPanel extends JPanel {
     
     Model model;
     
+    /**
+     * Defines the clock panel setting
+     * @param m 
+     */
     public ClockPanel(Model m) {
         model = m;
         setPreferredSize(new Dimension(200, 200));
         setBackground(Color.white);
     }
     
+    /**
+     * Calculates the locations for each item and draws the clock face and hands
+     * @param g 
+     */
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
         
