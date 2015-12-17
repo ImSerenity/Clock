@@ -20,6 +20,9 @@ public class Model extends Observable {
         update();
     }
     
+    /**
+     * Updates the calendar time ever second
+     */
     public void update() {
         Calendar date = Calendar.getInstance();
         hour = date.get(Calendar.HOUR);
